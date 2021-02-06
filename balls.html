@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>balls</title>
+    <style>
+        body {
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .ball {
+            position: absolute;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <script>
+        function Ball(x, y) {
+            // x y是小球圆心坐标
+            this.x = x;
+            this.y = y;
+            // 半径
+            this.r = 20;
+            // 小球颜色,从颜色数组中随机选择一个颜色
+            this.color = colorArr[parseInt(Math.random() * colorArr.length)];
+            // 小球透明度
+            this.opacity = 1;
+            // 小球的x增量和y增量[-10,10],即每个小球的移动方向(使用do while保证不能为0即不移动)
+            do {
+                this.dX = parseInt(Math.random() * 21) - 10;
+                this.dY = parseInt(Math.random() * 21) - 10;
+            } while (this.dX == 0 && this.dY == 0)
+            // 初始化
+            this.init();
+            // 把实例推入数组中
+            ballArr.push(this);
+        }
+
+        // 初始化
+        Ball.prototype.init = function () {
+            // 创建DOM元素
+            this.dom = document.createElement('div');
+            this.dom.className = 'ball';
+            this.dom.style.width = 2 * this.r + 'px';
+            this.dom.style.height = 2 * this.r + 'px';
+            this.dom.style.left = this.x - this.r + 'px';
+            this.dom.style.top = this.y - this.r + 'px';
+            this.dom.style.opacity = this.opacity;
+            this.dom.style.backgroundColor = this.color;
+            // 添加到DOM树
+            document.body.appendChild(this.dom);
+        }
+
+        // 更新
+        Ball.prototype.update = function () {
+            // 位置改变
+            this.x += this.dX;
+            this.y += this.dY;
+            // 半径改变
+            this.r += 0.2;
+            // 透明度改变
+            this.opacity -= 0.03;
+            this.dom.style.width = 2 * this.r + 'px';
+            this.dom.style.height = 2 * this.r + 'px';
+            this.dom.style.left = this.x - this.r + 'px';
+            this.dom.style.top = this.y - this.r + 'px';
+            this.dom.style.opacity = this.opacity;
+            // 当透明度小于0时，删除自己
+            if (this.opacity < 0) {
+                // 从数组中删除
+                for (var i = 0; i < ballArr.length; i++) {
+                    if (ballArr[i] == this) {
+                        ballArr.splice(i, 1);
+                    }
+                }
+                // 删除自己的dom
+                document.body.removeChild(this.dom);
+            }
+        }
+
+        // 把所有小球实例都放在一个数组中
+        var ballArr = [];
+
+        // 初始颜色数组
+        var colorArr = ['#66CCCC', '#CCFF66', '#FF99CC', '#FF6666', '#CC3399', '#FF6600'];
+
+        // 定时器,负责更新所有的小球实例
+        setInterval(function () {
+            // 遍历数组,调用小球的update方法
+            for (var i = 0; i < ballArr.length; i++) {
+                ballArr[i].update();
+            }
+        }, 20);
+
+        // 鼠标指针的监听
+        document.onmousemove = function (e) {
+            // 鼠标位置
+            var x = e.clientX;
+            var y = e.clientY;
+            new Ball(x, y);
+        }
+    </script>
+</body>
+
+</html>
